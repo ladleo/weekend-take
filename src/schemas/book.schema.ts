@@ -12,8 +12,8 @@ export class Book {
   genre: string;
   @Prop()
   releaseDate: Date;
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Review' })
-  review: Review[];
+  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }])
+  reviews: Review[];
 }
 
 export const BookSchema = SchemaFactory.createForClass(Book);

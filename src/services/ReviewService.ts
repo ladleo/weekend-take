@@ -3,28 +3,53 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Review } from '../schemas/review.schema';
 import { ReviewDto } from '../dto/ReviewDto';
-import { response } from 'express';
 
 @Injectable()
 export class ReviewService {
+  reviewArray = [];
   constructor(@InjectModel(Review.name) private reviewModel: Model<Review>) {}
   async findAll(): Promise<Review[]> {
     return this.reviewModel.find().exec();
   }
 
-  async create(reviewDto: ReviewDto): Promise<ReviewDto> {
+  async create(reviewDto: ReviewDto): Promise<Review> {
     const review = new this.reviewModel(reviewDto);
     return review.save();
   }
 
-  async createMany(reviewDtos: ReviewDto[]): Promise<ReviewDto[]> {
-    const reviewArray = [];
-    reviewDtos.map((item) => {
+  async createMany(reviewDtos: ReviewDto[]): Promise<any> {
+    this.reviewArray = [];
+    const reviewSync = await reviewDtos.map((item) => {
       return this.create(item).then((response) => {
-        return reviewArray.push(response);
+        return this.reviewArray.push(response);
       });
     });
-    return reviewArray;
+    await Promise.all(reviewSync);
+    return this.reviewArray;
+  }
+
+  async updateMany(reviewDtos: ReviewDto[]): Promise<any> {
+    this.reviewArray = [];
+    const reviewSync = await reviewDtos.map((item) => {
+      if (item._id) {
+        this.reviewModel.updateOne(
+          { _id: item._id },
+          {
+            $set: {
+              review: item.review,
+              rating: item.rating,
+            },
+          },
+        );
+        this.reviewArray.push(item);
+      } else {
+        const review = new this.reviewModel(item);
+        review.save();
+        this.reviewArray.push(review);
+      }
+    });
+    await Promise.all(reviewSync);
+    return this.reviewArray;
   }
 
   async findOne(id: string): Promise<Review> {

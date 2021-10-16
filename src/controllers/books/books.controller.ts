@@ -3,10 +3,6 @@ import { BookService } from '../../services/BookService';
 import { Book } from '../../schemas/book.schema';
 import { BookDto } from '../../dto/BookDto';
 import { ReviewService } from '../../services/ReviewService';
-import moment from 'moment';
-import { Review } from '../../schemas/review.schema';
-import { async } from 'rxjs';
-import { response } from 'express';
 
 @Controller('books')
 export class BooksController {
@@ -28,8 +24,8 @@ export class BooksController {
 
   @Post('create')
   store(@Body() bookDto: BookDto): Promise<BookDto> {
-    return this.reviewService.create(bookDto.review).then((response) => {
-      bookDto.review = response;
+    return this.reviewService.createMany(bookDto.reviews).then((response) => {
+      bookDto.reviews = response;
       bookDto.releaseDate = new Date(bookDto.releaseDate);
       return this.bookService
         .create(bookDto)
@@ -40,11 +36,6 @@ export class BooksController {
           return error;
         });
     });
-    // if (bookDto.review) {
-    //   return this.reviewService.createMany(bookDto.review).then((response) => {
-    //     bookDto.review = response;
-    //   });
-    // }
   }
 
   @Post(':id')
@@ -54,7 +45,17 @@ export class BooksController {
 
   @Post(':id/update')
   update(@Param('id') id: string, @Body() bookDto: BookDto): Promise<any> {
-    return this.bookService.update(id, bookDto);
+    return this.reviewService.updateMany(bookDto.reviews).then((response) => {
+      bookDto.reviews = response;
+      return this.bookService
+        .update(id, bookDto)
+        .then((response) => {
+          return response;
+        })
+        .catch((error) => {
+          return error;
+        });
+    });
   }
 
   @Post(':id/delete')

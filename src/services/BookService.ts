@@ -8,7 +8,7 @@ import { Book } from '../schemas/book.schema';
 export class BookService {
   constructor(@InjectModel(Book.name) private bookModel: Model<Book>) {}
   async findAll(): Promise<Book[]> {
-    return this.bookModel.find().exec();
+    return this.bookModel.find().populate('reviews').exec();
   }
 
   async create(bookDto: BookDto): Promise<any> {
@@ -17,7 +17,7 @@ export class BookService {
   }
 
   async findOne(id: string): Promise<Book> {
-    return this.bookModel.findById(id);
+    return this.bookModel.findById(id).populate('reviews').exec();
   }
 
   async update(id: string, bookDto: BookDto): Promise<any> {
@@ -29,7 +29,7 @@ export class BookService {
           author: bookDto.author,
           genre: bookDto.genre,
           releaseDate: bookDto.releaseDate,
-          reviews: bookDto.review,
+          reviews: bookDto.reviews,
         },
       },
     );
