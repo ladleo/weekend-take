@@ -1,12 +1,16 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersController } from './users/users.controller';
-import { BooksController } from './books/books.controller';
-import { ReviewsController } from './reviews/reviews.controller';
+import { UsersController } from './controllers/users/users.controller';
+import { BooksController } from './controllers/books/books.controller';
+import { ReviewsController } from './controllers/reviews/reviews.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserService } from './services/UserService';
 import { User, UserSchema } from './schemas/user.schema';
+import { Book, BookSchema } from './schemas/book.schema';
+import { Review, ReviewSchema } from './schemas/review.schema';
+import { BookService } from './services/BookService';
+import { ReviewService } from './services/ReviewService';
 
 @Module({
   imports: [
@@ -16,6 +20,14 @@ import { User, UserSchema } from './schemas/user.schema';
         name: User.name,
         schema: UserSchema,
       },
+      {
+        name: Book.name,
+        schema: BookSchema,
+      },
+      {
+        name: Review.name,
+        schema: ReviewSchema,
+      },
     ]),
   ],
   controllers: [
@@ -24,6 +36,6 @@ import { User, UserSchema } from './schemas/user.schema';
     BooksController,
     ReviewsController,
   ],
-  providers: [AppService, UserService],
+  providers: [AppService, UserService, BookService, ReviewService],
 })
 export class AppModule {}

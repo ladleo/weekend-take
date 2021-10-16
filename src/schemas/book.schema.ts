@@ -1,19 +1,19 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ObjectId } from 'mongoose';
 import { Review } from './review.schema';
+import * as mongoose from 'mongoose';
 
 @Schema()
 export class Book {
-  @Prop()
-  _id: ObjectId;
   @Prop()
   bookName: string;
   @Prop()
   author: string;
   @Prop()
-  releaseDate: Date;
+  genre: string;
   @Prop()
-  reviews: Array<Review>;
+  releaseDate: Date;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Review' })
+  review: Review[];
 }
 
 export const BookSchema = SchemaFactory.createForClass(Book);
