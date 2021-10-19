@@ -16,7 +16,7 @@ export class SearchService {
       .exec();
   }
 
-  searchTypeGeneral(body): Promise<Array<any>> {
+  searchTypeGeneral(): Promise<Array<any>> {
     return this.bookModle
       .aggregate([
         {
@@ -32,6 +32,41 @@ export class SearchService {
           $group: {
             _id: '$_id.genre',
             results: { $push: '$$ROOT' },
+          },
+        },
+        {
+          $sort: {
+            '_id.year': -1,
+          },
+        },
+      ])
+      .exec();
+  }
+
+  searchTypeReviewRatings(): Promise<Array<any>> {
+    return this.bookModle
+      .aggregate([
+        {
+          $lookup: {
+            from: 'reviews',
+            localField: 'reviews',
+            foreignField: '_id',
+            as: 'reviews',
+          },
+        },
+        {
+          $group: {
+            _id: {
+              author: '$author',
+              ratings: '$reviews.rating',
+            },
+          },
+        },
+        {
+          $group: {
+            _id: '$_id.author',
+            // ratings: { $push: '$_id.ratings' },
+            totalRatings: { $sum: { $sum: '$_id.ratings' } },
           },
         },
       ])

@@ -1,5 +1,5 @@
 export class ReviewDto {
-  _id?: string;
+  bookId?: string;
   review: string;
   rating: number;
 }

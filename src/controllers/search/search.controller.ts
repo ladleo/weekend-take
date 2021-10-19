@@ -1,15 +1,20 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import { Controller, Param, Post } from '@nestjs/common';
 import { SearchService } from '../../services/search.service';
-import { Aggregate } from 'mongoose';
 import { Book } from '../../schemas/book.schema';
+import { response } from 'express';
 
 @Controller('search')
 export class SearchController {
   constructor(private searchService: SearchService) {}
 
   @Post('books/general')
-  searchTypeGeneral(@Body() body): Promise<Array<any>> {
-    return this.searchService.searchTypeGeneral(body);
+  searchTypeGeneral(): Promise<Array<any>> {
+    return this.searchService.searchTypeGeneral();
+  }
+
+  @Post('books/review/ratings')
+  searchTypeReviewRatings(): Promise<any> {
+    return this.searchService.searchTypeReviewRatings();
   }
 
   @Post('books/:genre')

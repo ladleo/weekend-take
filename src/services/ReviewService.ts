@@ -3,23 +3,39 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Review } from '../schemas/review.schema';
 import { ReviewDto } from '../dto/ReviewDto';
+import { Book } from '../schemas/book.schema';
 
 @Injectable()
 export class ReviewService {
   reviewArray = [];
-  constructor(@InjectModel(Review.name) private reviewModel: Model<Review>) {}
+  constructor(
+    @InjectModel(Review.name) private reviewModel: Model<Review>,
+    @InjectModel(Book.name) private bookModel: Model<Book>,
+  ) {}
   async findAll(): Promise<Review[]> {
     return this.reviewModel.find().exec();
   }
 
   async create(reviewDto: ReviewDto): Promise<Review> {
     const review = new this.reviewModel(reviewDto);
-    return review.save();
+    await review.save();
+    this.bookModel.findByIdAndUpdate(
+      reviewDto.bookId,
+      {
+        $push: { reviews: review._id },
+      },
+      { new: true, upsert: true },
+      function (err, managerparent) {
+        if (err) throw err;
+        console.log(managerparent);
+      },
+    );
+    return review;
   }
 
   async createMany(reviewDtos: ReviewDto[]): Promise<any> {
     this.reviewArray = [];
-    const reviewSync = await reviewDtos.map((item) => {
+    const reviewSync = reviewDtos.map((item) => {
       return this.create(item).then((response) => {
         return this.reviewArray.push(response);
       });
@@ -28,29 +44,29 @@ export class ReviewService {
     return this.reviewArray;
   }
 
-  async updateMany(reviewDtos: ReviewDto[]): Promise<any> {
-    this.reviewArray = [];
-    const reviewSync = await reviewDtos.map((item) => {
-      if (item._id) {
-        this.reviewModel.updateOne(
-          { _id: item._id },
-          {
-            $set: {
-              review: item.review,
-              rating: item.rating,
-            },
-          },
-        );
-        this.reviewArray.push(item);
-      } else {
-        const review = new this.reviewModel(item);
-        review.save();
-        this.reviewArray.push(review);
-      }
-    });
-    await Promise.all(reviewSync);
-    return this.reviewArray;
-  }
+  // async updateMany(reviewDtos: ReviewDto[]): Promise<any> {
+  //   this.reviewArray = [];
+  //   const reviewSync = await reviewDtos.map((item) => {
+  //     if (item._id) {
+  //       this.reviewModel.updateOne(
+  //         { _id: item._id },
+  //         {
+  //           $set: {
+  //             review: item.review,
+  //             rating: item.rating,
+  //           },
+  //         },
+  //       );
+  //       this.reviewArray.push(item);
+  //     } else {
+  //       const review = new this.reviewModel(item);
+  //       review.save();
+  //       this.reviewArray.push(review);
+  //     }
+  //   });
+  //   await Promise.all(reviewSync);
+  //   return this.reviewArray;
+  // }
 
   async findOne(id: string): Promise<Review> {
     return this.reviewModel.findById(id);

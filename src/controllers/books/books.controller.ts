@@ -45,17 +45,17 @@ export class BooksController {
 
   @Post(':id/update')
   update(@Param('id') id: string, @Body() bookDto: BookDto): Promise<any> {
-    return this.reviewService.updateMany(bookDto.reviews).then((response) => {
-      bookDto.reviews = response;
-      return this.bookService
-        .update(id, bookDto)
-        .then((response) => {
-          return response;
-        })
-        .catch((error) => {
-          return error;
-        });
-    });
+    return this.bookService
+      .update(id, bookDto)
+      .then((response) => {
+        return response;
+      })
+      .catch((error) => {
+        return error;
+      });
+    // return this.reviewService.updateMany(bookDto.reviews).then((response) => {
+    //   bookDto.reviews = response;
+    // });
   }
 
   @Post(':id/delete')

@@ -29,7 +29,6 @@ export class BookService {
           author: bookDto.author,
           genre: bookDto.genre,
           releaseDate: bookDto.releaseDate,
-          reviews: bookDto.reviews,
         },
       },
     );
