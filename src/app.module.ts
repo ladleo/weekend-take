@@ -11,6 +11,8 @@ import { Book, BookSchema } from './schemas/book.schema';
 import { Review, ReviewSchema } from './schemas/review.schema';
 import { BookService } from './services/BookService';
 import { ReviewService } from './services/ReviewService';
+import { SearchController } from './controllers/search/search.controller';
+import { SearchService } from './services/search.service';
 
 @Module({
   imports: [
@@ -35,7 +37,14 @@ import { ReviewService } from './services/ReviewService';
     UsersController,
     BooksController,
     ReviewsController,
+    SearchController,
   ],
-  providers: [AppService, UserService, BookService, ReviewService],
+  providers: [
+    AppService,
+    UserService,
+    BookService,
+    ReviewService,
+    SearchService,
+  ],
 })
 export class AppModule {}
