@@ -22,8 +22,15 @@ export class SearchService {
         {
           $group: {
             _id: {
+              genre: '$genre',
               year: { $year: '$releaseDate' },
             },
+            results: { $push: '$$ROOT' },
+          },
+        },
+        {
+          $group: {
+            _id: '$_id.genre',
             results: { $push: '$$ROOT' },
           },
         },
@@ -31,6 +38,3 @@ export class SearchService {
       .exec();
   }
 }
-
-// { $match: { genre: { $regex: '.*' + body.genre + '*.' } } },
-// { $group: { _id: '$genre', reviews: { $sum: '$reviews' } } },
